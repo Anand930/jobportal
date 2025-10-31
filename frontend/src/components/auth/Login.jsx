@@ -91,7 +91,7 @@ const Login = () => {
                         </RadioGroup>
 
                     </div>
-                    {(loading===true) ? (
+                    {(loading) ? (
                         <div>
                             <Button className={"w-full my-4"}><Loader2 className='animate-spin ' />Please Wait</Button>
                         </div>
