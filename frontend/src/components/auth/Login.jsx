@@ -9,14 +9,14 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import { USER_API_VARIABLE } from '../utils/constant'
 import { useDispatch, useSelector } from 'react-redux'
-import { setLoading } from '@/redux/authSlice'
+import { setLoading, setUser } from '@/redux/authSlice'
 import { Loader2 } from 'lucide-react'
 
 const Login = () => {
     // initial input state
     const [input, setInput] = useState({ email: "", password: "", role: "" })
     // loading from teh redux store
-    const loading = useSelector(store => store.auth.loading)
+    const {loading} = useSelector(store => store.auth)
     // navigate method
     const navigate = useNavigate()
     // dispatch method from redux
@@ -40,6 +40,7 @@ const Login = () => {
                 withCredentials: true
             })
             if (res.data.success) {
+                dispatch(setUser(res.data.user))
                 navigate('/')
                 toast.success(res.data.message)
             }
