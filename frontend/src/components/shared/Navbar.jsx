@@ -1,14 +1,28 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { LogOut, User2 } from 'lucide-react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import store from '@/redux/store'
+import axios from 'axios'
+import { USER_API_VARIABLE } from '../utils/constant'
+import { setUser } from '@/redux/authSlice'
+import { toast } from 'sonner'
 
 const Navbar = () => {
-    const {user} = useSelector(store=>store.auth)
+    const { user } = useSelector(store => store.auth)
+    const dispatch = useDispatch()
+    const Navigate = useNavigate()
+    const logOutHandler = async () => {
+        const res = await axios.get(`${USER_API_VARIABLE}/logout`, { withCredentials: true })
+        if (res.data.success) {
+            dispatch(setUser(null))
+            Navigate('/')
+            toast.success(res.data.message)
+        }
+    }
     return (
         <div className='bg-white'>
             <div className='flex items-center justify-between mx-auto max-w-7xl h-16'>
@@ -20,9 +34,19 @@ const Navbar = () => {
                 </div>
                 <div className='flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
-                        <li><Link to={"/"}>Home</Link></li>
-                        <li><Link to={"/jobs"}>Jobs</Link></li>
-                        <li><Link to={"/browse"}>Browser</Link></li>
+                        {user && user.role === "recruiter" ? (
+                            <>
+                                <li><Link to={"/admin/companies"}>Companies</Link></li>
+                                <li><Link to={"/admin/jobs"}>Jobs</Link></li>
+                            </>
+                        ) : (
+                            <>
+                                <li><Link to={"/"}>Home</Link></li>
+                                <li><Link to={"/jobs"}>Jobs</Link></li>
+                                <li><Link to={"/browse"}>Browser</Link></li>
+                            </>
+                        )}
+
                     </ul>
                     {
                         !user ? (
@@ -34,13 +58,13 @@ const Navbar = () => {
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Avatar className={"cursor-pointer"}>
-                                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                        <AvatarImage src={user.profile.profilePhoto} alt="@shadcn" />
                                     </Avatar>
                                 </PopoverTrigger>
                                 <PopoverContent className={"w-80"}>
                                     <div className='space-y-2'>
                                         <Avatar className={"cursor-pointer"}>
-                                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                                            <AvatarImage src={user.profile.profilePhoto} alt="@shadcn" />
                                         </Avatar>
                                         <div>
                                             <h4 className='font-medium'>Anand Sharma</h4>
@@ -54,7 +78,7 @@ const Navbar = () => {
                                         </div>
                                         <div className='flex w-fit items-center gap-2 cursor-pointer'>
                                             <LogOut />
-                                            <Button variant={"link"}>Logout</Button>
+                                            <Button onClick={logOutHandler} variant={"link"}>Logout</Button>
                                         </div>
                                     </div>
                                 </PopoverContent>
